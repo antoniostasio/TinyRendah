@@ -1,15 +1,18 @@
 #include "tgaimage.h"
-
+#include "model.h"
+#include "geometry.h"
 using namespace std;
 
 const TGAColor white = TGAColor(255, 255, 255, 255);
 const TGAColor red = TGAColor(255, 0, 0, 255);
+#define WIDTH 800
+#define HEIGHT 800
 
 struct Painter {
     TGAImage canvas;
     TGAColor color = white;
     void save();
-    void line(int x0, int y0, int x1, int y1, TGAColor colore);
+    void drawLine(int x0, int y0, int x1, int y1, const TGAColor &colore);
 };
 
 void Painter::save() {
@@ -17,13 +20,16 @@ void Painter::save() {
     canvas.write_tga_file("output.tga");
 }
 
-void Painter::line(int x0, int y0, int x1, int y1, TGAColor colore){
+void Painter::drawLine(int x0, int y0, int x1, int y1, const TGAColor &colore){
+    // make so that dx > dy always
     bool transposed = false;
     if (std::abs(x0-x1) < std::abs(y0-y1)) {
         std::swap(x0, y0);
         std::swap(x1, y1);
         transposed = true;
     }
+    
+    // draw drawLine from left to right
     if (x0 > x1) {
         std::swap(x0, x1);
         std::swap(y0 ,y1);
@@ -50,10 +56,22 @@ void Painter::line(int x0, int y0, int x1, int y1, TGAColor colore){
 
 int main(int argc, char** argv) {
     Painter giotto;
-    giotto.canvas = TGAImage(100, 100, TGAImage::RGB);
-    giotto.line(13,20, 80,40, white);
-    giotto.line(20,13, 40,80, red);
-    giotto.line(80,40, 13,20, red);
+    Model *model = new Model("obj\\african_head\\african_head.obj");
+    giotto.canvas = TGAImage(WIDTH, HEIGHT, TGAImage::RGB);
+    
+    
+    for (int i=0; i < model->nfaces(); i++){
+        std::vector<int> faceVertices = model->face(i);
+        for (int j=0; j<3; j++) {
+            Vec3f extremity1 = model->vert(faceVertices[j]);
+            Vec3f extremity2 = model->vert(faceVertices[ (j+1)%3 ]);
+            int x0 = (extremity1.x + 1)*WIDTH/2;
+            int y0 = (extremity1.y + 1)*HEIGHT/2;
+            int x1 = (extremity2.x + 1)*WIDTH/2;
+            int y1 = (extremity2.y + 1)*HEIGHT/2;
+            giotto.drawLine(x0,y0, x1,y1, white);
+        }
+    }
     giotto.save();
     
     return 0;

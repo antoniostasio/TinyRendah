@@ -28,14 +28,23 @@ void Painter::line(int x0, int y0, int x1, int y1, TGAColor colore){
         std::swap(x0, x1);
         std::swap(y0 ,y1);
     }
+    float slope = (y1-y0)/(float)(x1-x0);
+    float y_increment = 0;
+    int y = y0;
     for (int x=x0; x<=x1; x++) {
-        int y = (x-x0)*(y1-y0)/(float)(x1-x0) + y0;
         if(transposed) {
             canvas.set(y,x, colore);
         }
         else {
             canvas.set(x,y, colore);
         }
+        
+        y_increment += slope;
+        if(y_increment > .5) {
+            y += (y0>y1?-1:1);
+            y_increment -= 1;
+        }
+        
     }
 }
 

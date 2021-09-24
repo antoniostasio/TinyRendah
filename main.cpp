@@ -14,6 +14,7 @@ struct Painter {
     TGAColor paintColor = white;
     void save();
     void drawLine(int x0, int y0, int x1, int y1, const TGAColor &color);
+    void drawLine(Vec2i p0, Vec2i p1, const TGAColor &color);
     void drawTriangle(Vec2i p0, Vec2i p1, Vec2i p2, const TGAColor &color);
 };
 
@@ -69,6 +70,10 @@ void Painter::drawLine(int x0, int y0, int x1, int y1, const TGAColor &color){
     }*/
 }
 
+void Painter::drawLine(Vec2i p0, Vec2i p1, const TGAColor &color){
+    drawLine(p0.x,p0.y, p1.x,p1.y, color);
+}
+
 void Painter::drawTriangle(Vec2i p0, Vec2i p1, Vec2i p2, const TGAColor &color) {
     // sort vertices bottom-top
     if(p0.y>p1.y) std::swap(p0,p1);
@@ -88,9 +93,12 @@ void Painter::drawTriangle(Vec2i p0, Vec2i p1, Vec2i p2, const TGAColor &color) 
             x_right = p0.x + (y-p0.y)*(p1.x-p0.x)/float(p1.y-p0.y);
         }
         drawLine(int(x_left),y, int(x_right),y, color);
-        canvas.set(int(x_left),y, color);
-        canvas.set(int(x_right),y, color);      
+        //canvas.set(int(x_left),y, color);
+        //canvas.set(int(x_right),y, color);    
     }
+    //drawLine(p0,p1, color);
+    //drawLine(p1,p2, color);
+    //drawLine(p2,p0, color);
 }
 
 void drawMesh(const char *path) {
